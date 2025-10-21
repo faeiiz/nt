@@ -136,7 +136,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			return m, tea.Quit
 
 		case "a":
@@ -300,8 +300,8 @@ func (m *model) View() string {
 		content := m.list.View()
 		count := fmt.Sprintf(" %d notes ", len(m.list.Items()))
 		status := lipgloss.NewStyle().Foreground(lipgloss.Color("#888888")).
-			Render(fmt.Sprintf("(↑/k up • ↓/j down • / filter • q quit) • %s", count))
-		footer := helpStyle.Render("(a) add • (enter) view • (c) toggle complete • q quit • / filter")
+			Render(fmt.Sprintf("(↑/k up • ↓/j down • / filter) • %s", count))
+		footer := helpStyle.Render("(a) add • (enter) view • (c) toggle complete • / filter")
 		return borderStyle.Render(fmt.Sprintf("%s\n\n%s", content, status+"\n"+footer))
 
 	case viewMode:
@@ -309,10 +309,12 @@ func (m *model) View() string {
 		if contentWidth < 10 {
 			contentWidth = 10
 		}
-		titleRendered := titleStyle.Copy().Width(contentWidth).Render(m.selected.n.Title)
+
+		titleRendered := titleStyle.Copy().Width(contentWidth).Render(noteItem{n: m.selected.n}.Title())
+
 		bodyText := softBreakLongTokens(m.selected.n.Body, 30)
 		bodyWrapped := bodyStyle.Copy().Width(contentWidth).Render(bodyText)
-		footer := helpStyle.Render("(e) edit • (d) delete • (c) toggle complete • (Esc) back • q quit")
+		footer := helpStyle.Render("(e) edit • (d) delete • (c) toggle complete • (Esc) back ")
 		return borderStyle.Render(fmt.Sprintf("%s\n\n%s\n\n%s", titleRendered, bodyWrapped, footer))
 
 	case addMode:
@@ -323,7 +325,7 @@ func (m *model) View() string {
 			return borderStyle.Render(content)
 		}
 		stage := lipgloss.NewStyle().Bold(true).Render("Add Note — Body (Ctrl+S to save)")
-		help := helpStyle.Render("(Ctrl+S) save • (Esc) back to Title • q quit")
+		help := helpStyle.Render("(Ctrl+S) save • (Esc) back to Title ")
 		content := fmt.Sprintf("%s\n\n%s\n\n%s", stage, m.bodyArea.View(), help)
 		return borderStyle.Render(content)
 
